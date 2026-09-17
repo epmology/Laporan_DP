@@ -3,329 +3,479 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Harian Depati Payung - RSUD Kol. Abundjani</title>
+    <title>Portal Klinis - Ruang Depati Payung (Bougenville)</title>
+    <!-- Tailwind CSS CDN & Font Awesome -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style type="text/tailwindcss">
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         
-        .form-card { background-color: #ffffff; border-radius: 1rem; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .form-card { @apply bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6; }
+        .section-header { @apply flex flex-col items-center justify-center text-center mb-6 border-b border-slate-200 pb-4; }
+        .section-title { @apply font-black text-base uppercase tracking-widest text-slate-800; }
+        .section-icon { @apply w-12 h-1.5 rounded-full shadow-sm mt-3 shrink-0; }
         
-        .section-header { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; }
-        .section-title { font-weight: 900; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; color: #1e293b; }
-        .section-icon { width: 3rem; height: 0.375rem; border-radius: 9999px; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); margin-top: 0.75rem; flex-shrink: 0; }
+        .input-group { @apply flex flex-col mb-4; }
+        .input-label { @apply text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5; }
+        .input-ctrl { @apply w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all text-sm font-semibold text-slate-900; }
+        textarea.input-ctrl { @apply resize-y min-h-[80px]; }
         
-        .input-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
-        .input-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.375rem; }
-        .input-ctrl { width: 100%; padding: 0.625rem 1rem; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; color: #0f172a; outline: none; transition: all 0.2s; }
-        .input-ctrl:focus { border-color: #6366f1; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
-        textarea.input-ctrl { resize: vertical; min-height: 80px; }
+        .gcs-input { @apply w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-center font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 outline-none appearance-none; }
+        select option { @apply text-slate-900 bg-white; }
         
-        select option { color: #0f172a; background-color: #ffffff; }
+        .modal-overlay { @apply fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300; }
+        .modal-overlay.active { @apply opacity-100 pointer-events-auto; }
+        .modal-content { @apply bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]; }
+        .modal-overlay.active .modal-content { @apply scale-100; }
+        
+        .btn-add { @apply mt-2 w-full py-2.5 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 text-xs font-bold uppercase tracking-widest hover:bg-slate-50 hover:border-indigo-400 hover:text-indigo-600 transition-colors flex items-center justify-center gap-2; }
         .hidden-input { display: none; }
-        
-        .btn-add { margin-top: 0.5rem; width: 100%; padding: 0.625rem; border: 2px dashed #cbd5e1; border-radius: 0.75rem; color: #64748b; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-        .btn-add:hover { background-color: #f8fafc; border-color: #818cf8; color: #4f46e5; }
-        
-        .modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background-color: #ffffff; width: 100%; max-width: 42rem; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; transform: scale(0.95); transition: transform 0.3s ease; display: flex; flex-direction: column; max-height: 90vh; }
-        .modal-overlay.active .modal-content { transform: scale(1); }
-        
-        .toast { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); background-color: #0f172a; color: #ffffff; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); opacity: 0; transition: opacity 0.3s ease; z-index: 200; pointer-events: none; }
-        .toast.active { opacity: 1; }
+        .toast { @apply fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full text-xs font-bold tracking-widest shadow-xl opacity-0 transition-opacity duration-300 z-[200] pointer-events-none; }
+        .toast.active { @apply opacity-100; }
+
+        .nav-btn.active { @apply bg-indigo-600 text-white shadow-md; }
+        .nav-btn:not(.active) { @apply text-slate-600 hover:bg-slate-100; }
     </style>
 </head>
-<body class="text-slate-800 pb-32">
+<body class="text-slate-800 min-h-screen flex flex-col justify-between pb-24">
 
-    <div class="max-w-2xl mx-auto px-4 py-8">
-        
-        <!-- Header Utama -->
-        <div class="flex flex-col mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center items-center">
-            <h1 class="text-2xl font-black text-slate-900 leading-tight uppercase tracking-widest">LAPORAN <span class="text-indigo-600">HARIAN</span></h1>
-            <div class="w-full max-w-xs border-b-2 border-slate-200 my-3"></div>
-            <p class="text-sm font-black text-slate-800 tracking-widest uppercase">RSUD KOL. ABUNDJANI BANGKO</p>
-            <p class="text-[11px] font-semibold text-slate-500 mt-1">Ruang Depati Payung (Bougenville)</p>
-        </div>
-
-        <!-- Section 1: Informasi Waktu & Ruangan -->
-        <div class="form-card border-t-4 border-t-indigo-500">
-            <div class="section-header">
-                <h2 class="section-title">WAKTU & RUANGAN</h2>
-                <div class="section-icon bg-indigo-500"></div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <div class="input-group">
-                    <label class="input-label">Hari / Tanggal</label>
-                    <input type="date" id="tanggal" class="input-ctrl">
+    <!-- Header Portal -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-inner">
+                    <i class="fa-solid fa-hospital-user text-xl"></i>
                 </div>
-                <div class="input-group">
-                    <label class="input-label">Shift</label>
-                    <select id="shift" class="input-ctrl bg-white">
-                        <option value="Pagi">Pagi</option>
-                        <option value="Siang">Siang</option>
-                        <option value="Malam">Malam</option>
-                    </select>
-                </div>
-                <div class="input-group md:col-span-2">
-                    <label class="input-label">Nama Ruangan</label>
-                    <input type="text" id="ruangan" class="input-ctrl bg-slate-100" value="Ruang Depati Payung (Bougenville)" readonly>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 2: Kapasitas Bed Dinamis -->
-        <div class="form-card border-t-4 border-t-emerald-500">
-            <div class="section-header">
-                <h2 class="section-title">STATUS KAPASITAS (16 BED)</h2>
-                <div class="section-icon bg-emerald-500"></div>
-            </div>
-            
-            <!-- Output Ringkasan Kapasitas -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="input-group">
-                    <label class="input-label">Total Bed</label>
-                    <input type="text" id="total_bed" class="input-ctrl text-center font-bold bg-slate-100" value="16 Bed" readonly>
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Bed Terisi (Auto)</label>
-                    <input type="text" id="bed_terisi" class="input-ctrl text-center font-bold bg-slate-100" value="0 Bed" readonly>
-                </div>
-                <div class="input-group">
-                    <label class="input-label text-emerald-600">Bed Ready (Auto)</label>
-                    <input type="text" id="bed_ready" class="input-ctrl text-center font-black text-emerald-700 bg-emerald-50 text-xs" readonly value="16 Bed Ready">
-                </div>
-            </div>
-
-            <!-- Detail Grid Input Bed Per Ruangan -->
-            <div class="border-t border-slate-100 pt-6">
-                <h3 class="input-label mb-4 text-emerald-600 text-center">Input Pengisian Bed Per Kamar</h3>
-                
-                <!-- Kelas 1 -->
-                <div class="mb-4">
-                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Kelas 1</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="input-group !mb-0">
-                            <label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 1A (1 Bed)</label>
-                            <select id="bed_bgv_1a" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()">
-                                <option value="0">0 (Kosong)</option>
-                                <option value="1">1 (Terisi)</option>
-                            </select>
-                        </div>
-                        <div class="input-group !mb-0">
-                            <label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 1B (1 Bed)</label>
-                            <select id="bed_bgv_1b" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()">
-                                <option value="0">0 (Kosong)</option>
-                                <option value="1">1 (Terisi)</option>
-                            </select>
-                        </div>
-                        <div class="input-group !mb-0">
-                            <label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 1C (1 Bed)</label>
-                            <select id="bed_bgv_1c" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()">
-                                <option value="0">0 (Kosong)</option>
-                                <option value="1">1 (Terisi)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kelas 2 -->
-                <div class="mb-4">
-                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Kelas 2</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="input-group !mb-0">
-                            <label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 2A (2 Bed)</label>
-                            <select id="bed_bgv_2a" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()">
-                                <option value="0">0 Terisi</option>
-                                <option value="1">1 Terisi</option>
-                                <option value="2">2 Terisi</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kelas 3 & Isolasi -->
                 <div>
-                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Kelas 3 & Isolasi</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        <div class="input-group !mb-0">
-                            <label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 3A (2 Bed)</label>
-                            <select id="bed_bgv_3a" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()">
-                                <option value="0">0 Terisi</option>
-                                <option value="1">1 Terisi</option>
-                                <option value="2">2 Terisi</option>
+                    <h1 class="text-lg font-black tracking-wider uppercase">PORTAL DEPATI PAYUNG</h1>
+                    <p class="text-[11px] text-indigo-300 font-medium uppercase tracking-widest">RSUD Kol. Abundjani Bangko</p>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <nav class="flex bg-slate-800 p-1 rounded-xl w-full sm:w-auto border border-slate-700">
+                <button onclick="switchTab('laporan')" id="btn-tab-laporan" class="nav-btn active flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all">
+                    <i class="fa-solid fa-file-lines mr-1.5"></i> Laporan
+                </button>
+                <button onclick="switchTab('sisrute')" id="btn-tab-sisrute" class="nav-btn flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all">
+                    <i class="fa-solid fa-[#25D366] fa-share-nodes mr-1.5"></i> SISRUTE
+                </button>
+                <button onclick="switchTab('kalkulator')" id="btn-tab-kalkulator" class="nav-btn flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all">
+                    <i class="fa-solid fa-calculator mr-1.5"></i> Dosis
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 py-6 w-full grow">
+
+        <!-- ================= MODUL 1: LAPORAN HARIAN ================= -->
+        <section id="modul-laporan" class="tab-content">
+            <div class="flex flex-col mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center items-center">
+                <h2 class="text-2xl font-black text-slate-900 leading-tight uppercase tracking-widest">LAPORAN <span class="text-indigo-600">HARIAN</span></h2>
+                <div class="w-full max-w-xs border-b-2 border-slate-200 my-3"></div>
+                <p class="text-xs font-bold text-slate-500 tracking-wider uppercase">Ruang Depati Payung (Bougenville)</p>
+            </div>
+
+            <!-- Section 1: Informasi Waktu -->
+            <div class="form-card border-t-4 border-t-indigo-500">
+                <div class="section-header">
+                    <h2 class="section-title">WAKTU & RUANGAN</h2>
+                    <div class="section-icon bg-indigo-500"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                    <div class="input-group">
+                        <label class="input-label">Hari / Tanggal</label>
+                        <input type="date" id="lap_tanggal" class="input-ctrl">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Shift</label>
+                        <select id="lap_shift" class="input-ctrl bg-white">
+                            <option value="Pagi">Pagi</option>
+                            <option value="Siang">Siang</option>
+                            <option value="Malam">Malam</option>
+                        </select>
+                    </div>
+                    <div class="input-group md:col-span-2">
+                        <label class="input-label">Nama Ruangan</label>
+                        <input type="text" id="lap_ruangan" class="input-ctrl bg-slate-100" value="Ruang Depati Payung (Bougenville)" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Kapasitas Bed Dinamis -->
+            <div class="form-card border-t-4 border-t-emerald-500">
+                <div class="section-header">
+                    <h2 class="section-title">STATUS KAPASITAS (16 BED)</h2>
+                    <div class="section-icon bg-emerald-500"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="input-group">
+                        <label class="input-label">Total Bed</label>
+                        <input type="text" class="input-ctrl text-center font-bold bg-slate-100" value="16 Bed" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Bed Terisi (Auto)</label>
+                        <input type="text" id="lap_bed_terisi" class="input-ctrl text-center font-bold bg-slate-100" value="0 Bed" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label text-emerald-600">Bed Ready (Auto)</label>
+                        <input type="text" id="lap_bed_ready" class="input-ctrl text-center font-black text-emerald-700 bg-emerald-50 text-xs" readonly value="16 Bed Ready">
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-6">
+                    <h3 class="input-label mb-4 text-emerald-600 text-center">Input Pengisian Bed Per Kamar</h3>
+                    <!-- Kelas 1 -->
+                    <div class="mb-4">
+                        <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Kelas 1</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="input-group !mb-0"><label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 1A (1 Bed)</label><select id="bed_bgv_1a" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()"><option value="0">0 (Kosong)</option><option value="1">1 (Terisi)</option></select></div>
+                            <div class="input-group !mb-0"><label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 1B (1 Bed)</label><select id="bed_bgv_1b" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()"><option value="0">0 (Kosong)</option><option value="1">1 (Terisi)</option></select></div>
+                            <div class="input-group !mb-0"><label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 1C (1 Bed)</label><select id="bed_bgv_1c" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()"><option value="0">0 (Kosong)</option><option value="1">1 (Terisi)</option></select></div>
+                        </div>
+                    </div>
+                    <!-- Kelas 2 -->
+                    <div class="mb-4">
+                        <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Kelas 2</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="input-group !mb-0"><label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 2A (2 Bed)</label><select id="bed_bgv_2a" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()"><option value="0">0 Terisi</option><option value="1">1 Terisi</option><option value="2">2 Terisi</option></select></div>
+                        </div>
+                    </div>
+                    <!-- Kelas 3 & Isolasi -->
+                    <div>
+                        <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Kelas 3 & Isolasi</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="input-group !mb-0"><label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 3A (2 Bed)</label><select id="bed_bgv_3a" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()"><option value="0">0 Terisi</option><option value="1">1 Terisi</option><option value="2">2 Terisi</option></select></div>
+                            <div class="input-group !mb-0"><label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 3B (2 Bed)</label><select id="bed_bgv_3b" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()"><option value="0">0 Terisi</option><option value="1">1 Terisi</option><option value="2">2 Terisi</option></select></div>
+                            <div class="input-group !mb-0"><label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 3C (2 Bed)</label><select id="bed_bgv_3c" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()"><option value="0">0 Terisi</option><option value="1">1 Terisi</option><option value="2">2 Terisi</option></select></div>
+                            <div class="input-group !mb-0"><label class="text-[10px] font-bold text-slate-500 mb-1">Isolasi 1 (2 Bed)</label><select id="bed_isolasi_1" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()"><option value="0">0 Terisi</option><option value="1">1 Terisi</option><option value="2">2 Terisi</option></select></div>
+                            <div class="input-group !mb-0"><label class="text-[10px] font-bold text-slate-500 mb-1">Isolasi 2 (1 Bed)</label><select id="bed_isolasi_2" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()"><option value="0">0 (Kosong)</option><option value="1">1 (Terisi)</option></select></div>
+                            <div class="input-group !mb-0"><label class="text-[10px] font-bold text-slate-500 mb-1">Isolasi 3 (2 Bed)</label><select id="bed_isolasi_3" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()"><option value="0">0 Terisi</option><option value="1">1 Terisi</option><option value="2">2 Terisi</option></select></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: SDM Keperawatan -->
+            <div class="form-card border-t-4 border-t-amber-500">
+                <div class="section-header">
+                    <h2 class="section-title">SDM KEPERAWATAN</h2>
+                    <div class="section-icon bg-amber-500"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 mb-4">
+                    <div class="input-group"><label class="input-label">Hadir Dinas (Orang)</label><input type="number" id="lap_hadir" class="input-ctrl" placeholder="Jumlah Hadir" min="0"></div>
+                    <div class="input-group"><label class="input-label">Tidak Hadir (Orang)</label><input type="number" id="lap_tidak_hadir" class="input-ctrl" placeholder="Jumlah Tidak Hadir" min="0"></div>
+                </div>
+                <div class="border-t border-slate-100 pt-4">
+                    <h3 class="input-label mb-3 text-amber-600">Rincian Perawat Tidak Hadir</h3>
+                    <div id="absen_container" class="space-y-2 mb-3"></div>
+                    <button type="button" onclick="addAbsenRow()" class="btn-add">+ Tambah Data Absen</button>
+                </div>
+            </div>
+
+            <!-- Section 4: Operasional & Pelaporan -->
+            <div class="form-card border-t-4 border-t-slate-800">
+                <div class="section-header">
+                    <h2 class="section-title">KENDALA & PELAPORAN</h2>
+                    <div class="section-icon bg-slate-800"></div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Kendala Pelayanan Ruangan</label>
+                    <textarea id="lap_kendala" class="input-ctrl" placeholder="Deskripsikan kendala...">Nihil</textarea>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Dilaporkan Oleh (Katim)</label>
+                    <select id="lap_pelapor" class="input-ctrl bg-white" onchange="togglePelaporManual()">
+                        <option value="">-- Pilih Katim --</option>
+                    </select>
+                    <input type="text" id="lap_pelapor_manual" class="input-ctrl mt-2 hidden-input" placeholder="Ketik Nama Katim Manual...">
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MODUL 2: FORMAT SISRUTE ================= -->
+        <section id="modul-sisrute" class="tab-content hidden">
+            <div class="flex flex-col mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center items-center">
+                <h2 class="text-2xl font-black text-slate-900 leading-tight uppercase tracking-widest">FORMAT <span class="text-indigo-600">SISRUTE</span></h2>
+                <div class="w-full max-w-sm border-b-2 border-slate-200 my-3"></div>
+                <p class="text-xs font-bold text-slate-500 tracking-wider uppercase">RSUD KOL. ABUNDJANI BANGKO</p>
+            </div>
+
+            <!-- Identitas Pasien -->
+            <div class="form-card border-t-4 border-t-indigo-500">
+                <div class="section-header">
+                    <h2 class="section-title">IDENTITAS PASIEN & RUJUKAN</h2>
+                    <div class="section-icon bg-indigo-500"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                    <div class="input-group"><label class="input-label">Nama Pasien</label><input type="text" id="sis_nama" class="input-ctrl" placeholder="Nama Lengkap"></div>
+                    <div class="input-group"><label class="input-label">No. RM</label><input type="text" id="sis_mr" class="input-ctrl" placeholder="00.00.00" oninput="this.value = autoFormatMR(this.value)" maxlength="8"></div>
+                    <div class="input-group"><label class="input-label">Usia</label><input type="text" id="sis_usia" class="input-ctrl" placeholder="XX Tahun / Bulan"></div>
+                    <div class="input-group">
+                        <label class="input-label">Jenis Kelamin</label>
+                        <select id="sis_jk" class="input-ctrl appearance-none"><option value="-">-- Pilih --</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select>
+                    </div>
+                    <div class="input-group"><label class="input-label">Tempat/Tanggal Lahir</label><input type="text" id="sis_ttl" class="input-ctrl" placeholder="Tempat, DD-MM-YYYY"></div>
+                    <div class="input-group"><label class="input-label">No. Kontak</label><input type="text" id="sis_kontak" class="input-ctrl" placeholder="08XXXXXXXXXX"></div>
+                    <div class="input-group md:col-span-2"><label class="input-label">Alamat</label><input type="text" id="sis_alamat" class="input-ctrl" placeholder="Alamat lengkap..."></div>
+                    <div class="input-group">
+                        <label class="input-label">Jaminan</label>
+                        <select id="sis_jaminan" class="input-ctrl appearance-none"><option value="-">-- Pilih Jaminan --</option><option value="BPJS">BPJS</option><option value="UMUM">UMUM</option></select>
+                    </div>
+                    <div class="input-group"><label class="input-label">Lama Rawatan (Hari)</label><input type="number" id="sis_hari_rawatan" class="input-ctrl" placeholder="Contoh: 3"></div>
+                    <div class="input-group md:col-span-2"><label class="input-label">Diagnosa Medis</label><input type="text" id="sis_diagnosa" class="input-ctrl" placeholder="Diagnosa Utama dan Sekunder..."></div>
+                    <div class="input-group md:col-span-2"><label class="input-label">Alasan Rujukan</label><textarea id="sis_alasan" class="input-ctrl" placeholder="Keterbatasan fasilitas..."></textarea></div>
+                    <div class="input-group md:col-span-2"><label class="input-label">Ditujukan ke Bagian</label><input type="text" id="sis_tujuan_bagian" class="input-ctrl" placeholder="Tujuan bagian khusus"></div>
+                    <div class="input-group md:col-span-2"><label class="input-label">Rencana Tindakan / Layanan Khusus</label><textarea id="sis_rencana" class="input-ctrl" placeholder="Rencana tindakan..."></textarea></div>
+                </div>
+            </div>
+
+            <!-- Klinis & Fisik -->
+            <div class="form-card border-t-4 border-t-emerald-500">
+                <div class="section-header">
+                    <h2 class="section-title">KLINIS & PEMERIKSAAN FISIK</h2>
+                    <div class="section-icon bg-emerald-500"></div>
+                </div>
+                <div class="input-group"><label class="input-label">Anamnesis</label><textarea id="sis_anamnesis" class="input-ctrl" placeholder="Anamnesis..."></textarea></div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="input-group md:col-span-2">
+                        <label class="input-label">Kesadaran</label>
+                        <select id="sis_kesadaran" class="input-ctrl appearance-none">
+                            <option value="-">-- Pilih --</option><option value="Composmentis">Composmentis</option><option value="Apatis">Apatis</option><option value="Somnolen">Somnolen</option><option value="Sopor">Sopor</option><option value="Coma">Coma</option>
+                        </select>
+                    </div>
+                    <div class="input-group md:col-span-2">
+                        <label class="input-label text-center">GCS</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="flex flex-col items-center"><span class="text-[10px] font-bold mb-1">E</span><select id="sis_gcs_e" class="gcs-input"><option value="-">-</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option></select></div>
+                            <div class="flex flex-col items-center"><span class="text-[10px] font-bold mb-1">M</span><select id="sis_gcs_m" class="gcs-input"><option value="-">-</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6" selected>6</option></select></div>
+                            <div class="flex flex-col items-center"><span class="text-[10px] font-bold mb-1">V</span><select id="sis_gcs_v" class="gcs-input"><option value="-">-</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="Afasia">Afasia</option><option value="Terintubasi">Terintubasi</option></select></div>
+                        </div>
+                    </div>
+                    <div class="input-group"><label class="input-label">Tekanan Darah</label><input type="text" id="sis_td" class="input-ctrl" placeholder="120/80"></div>
+                    <div class="input-group"><label class="input-label">Nadi</label><input type="text" id="sis_nadi" class="input-ctrl" placeholder="80"></div>
+                    <div class="input-group"><label class="input-label">Suhu (°C)</label><input type="text" id="sis_suhu" class="input-ctrl" placeholder="36.5"></div>
+                    <div class="input-group"><label class="input-label">RR</label><input type="text" id="sis_rr" class="input-ctrl" placeholder="20"></div>
+                    <div class="input-group"><label class="input-label">SpO2 (%)</label><input type="text" id="sis_spo2" class="input-ctrl" placeholder="99"></div>
+                    <div class="input-group md:col-span-2">
+                        <label class="input-label">Bantuan Oksigen</label>
+                        <select id="sis_bantuan_oksigen" class="input-ctrl appearance-none">
+                            <option value="-">-- Pilih Oksigen --</option><option value="Room Air">Room Air</option><option value="Nasal Kanul">Nasal Kanul</option><option value="Face Mask">Face Mask</option><option value="NRM">NRM</option><option value="RM">RM</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label class="input-label">Jumlah Oksigen</label><input type="number" id="sis_jumlah_oksigen" class="input-ctrl" placeholder="LPM"></div>
+                </div>
+            </div>
+
+            <!-- Terapi & DPJP -->
+            <div class="form-card border-t-4 border-t-amber-500">
+                <div class="section-header"><h2 class="section-title">TERAPI & TINDAKAN</h2><div class="section-icon bg-amber-500"></div></div>
+                <div class="mb-6"><h3 class="input-label mb-2 text-amber-600">Injeksi</h3><div id="injeksi_container" class="space-y-2"></div><button onclick="addTherapyRow('injeksi')" class="btn-add">Tambah Injeksi</button></div>
+                <div class="mb-6"><h3 class="input-label mb-2 text-amber-600">Oral</h3><div id="oral_container" class="space-y-2"></div><button onclick="addTherapyRow('oral')" class="btn-add">Tambah Oral</button></div>
+                <div><h3 class="input-label mb-2 text-amber-600">Tindakan Dilakukan</h3><div id="tindakan_container" class="space-y-2"></div><button onclick="addTindakanRow()" class="btn-add">Tambah Tindakan</button></div>
+            </div>
+
+            <div class="form-card border-t-4 border-t-slate-800">
+                <div class="section-header"><h2 class="section-title">PENANGGUNG JAWAB</h2><div class="section-icon bg-slate-800"></div></div>
+                <div class="input-group">
+                    <label class="input-label">Nama DPJP Yang Merujuk</label>
+                    <select id="sis_dpjp" class="input-ctrl appearance-none" onchange="toggleDpjpManual()">
+                        <option value="">-- Pilih DPJP --</option>
+                        <option value="dr. Victor, Sp. B">dr. Victor, Sp. B</option>
+                        <option value="dr. Shinta, Sp. B">dr. Shinta, Sp. B</option>
+                        <option value="dr. Ary Kurniawan, Sp. JP">dr. Ary Kurniawan, Sp. JP</option>
+                        <option value="dr. Derallah, Sp. P(K), FISR">dr. Derallah, Sp. P(K), FISR</option>
+                        <option value="dr. Novi Apriani, Sp. N, NFIDN">dr. Novi Apriani, Sp. N, NFIDN</option>
+                        <option value="dr. Sefnirita, Sp. PD, FINASIM">dr. Sefnirita, Sp. PD, FINASIM</option>
+                        <option value="dr. Pernanda Selpia, Sp. PD, FINASIM">dr. Pernanda Selpia, Sp. PD, FINASIM</option>
+                        <option value="dr. Nur Ekasari, Sp. PD., M.Kes., FINASIM">dr. Nur Ekasari, Sp. PD., M.Kes., FINASIM</option>
+                        <option value="dr. Ikli, Sp. B">dr. Ikli, Sp. B</option>
+                        <option value="dr. Bayu Juliansyah, Sp. AN-TI">dr. Bayu Juliansyah, Sp. AN-TI</option>
+                        <option value="dr. Diki Akbar, Sp. AN-TI">dr. Diki Akbar, Sp. AN-TI</option>
+                        <option value="dr. Andro Sitorus, Sp.AN">dr. Andro Sitorus, Sp.AN</option>
+                        <option value="manual">Lainnya (Ketik Manual)</option>
+                    </select>
+                    <input type="text" id="sis_dpjp_manual" class="input-ctrl mt-2 hidden-input" placeholder="Nama DPJP Lengkap...">
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MODUL 3: KALKULATOR DOSIS ================= -->
+        <section id="modul-kalkulator" class="tab-content hidden">
+            <div class="flex flex-col mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center items-center">
+                <h2 class="text-2xl font-black text-slate-900 leading-tight uppercase tracking-widest">KALKULATOR <span class="text-indigo-600">DOSIS OBAT</span></h2>
+                <div class="w-full max-w-sm border-b-2 border-slate-200 my-3"></div>
+                <p class="text-xs font-bold text-slate-500 tracking-wider uppercase">Syringe Pump & Drip Tetesan Infus</p>
+            </div>
+
+            <!-- Sub Tab Kalkulator -->
+            <div class="flex bg-slate-200 p-1.5 rounded-2xl mb-8">
+                <button id="calcTabSp" onclick="switchCalcTab('sp')" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-sm bg-white text-indigo-600">
+                    <i class="fa-solid fa-syringe mr-2"></i> Syringe Pump
+                </button>
+                <button id="calcTabDrip" onclick="switchCalcTab('drip')" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all text-slate-600 hover:text-slate-900">
+                    <i class="fa-solid fa-droplet mr-2"></i> Tetesan Drip
+                </button>
+            </div>
+
+            <!-- MODE 1: SYRINGE PUMP -->
+            <div id="calcModeSp" class="space-y-6">
+                <div class="form-card border-l-4 border-l-indigo-600">
+                    <h3 class="font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider">1. Pilih / Atur Obat</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="input-group">
+                            <label class="input-label">Preset Obat Rapid</label>
+                            <select id="calc_sp_preset" class="input-ctrl" onchange="applySpPreset()">
+                                <option value="custom">-- Custom / Obat Lain --</option>
+                                <option value="vascon">Norepinephrine / Vascon (4 mg / 50 mL)</option>
+                                <option value="dobutamin">Dobutamine (250 mg / 50 mL)</option>
+                                <option value="dopamin">Dopamine (200 mg / 50 mL)</option>
+                                <option value="perdipine">Nicardipine / Perdipine (10 mg / 50 mL)</option>
+                                <option value="fentanyl">Fentanyl (100 mcg / 50 mL)</option>
                             </select>
                         </div>
-                        <div class="input-group !mb-0">
-                            <label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 3B (2 Bed)</label>
-                            <select id="bed_bgv_3b" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()">
-                                <option value="0">0 Terisi</option>
-                                <option value="1">1 Terisi</option>
-                                <option value="2">2 Terisi</option>
-                            </select>
+                        <div class="input-group">
+                            <label class="input-label">Berat Badan Pasien (kg)</label>
+                            <input type="number" id="calc_sp_bb" class="input-ctrl" placeholder="Contoh: 60" oninput="calculateSp()">
                         </div>
-                        <div class="input-group !mb-0">
-                            <label class="text-[10px] font-bold text-slate-500 mb-1">Bougenville 3C (2 Bed)</label>
-                            <select id="bed_bgv_3c" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()">
-                                <option value="0">0 Terisi</option>
-                                <option value="1">1 Terisi</option>
-                                <option value="2">2 Terisi</option>
-                            </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">Sediaan Obat</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="calc_sp_sediaan" class="input-ctrl" placeholder="Contoh: 4" oninput="calculateSp()">
+                                <select id="calc_sp_satuan_sediaan" class="input-ctrl !w-28" onchange="calculateSp()">
+                                    <option value="mg">mg</option>
+                                    <option value="mcg">mcg</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="input-group !mb-0">
-                            <label class="text-[10px] font-bold text-slate-500 mb-1">Isolasi 1 (2 Bed)</label>
-                            <select id="bed_isolasi_1" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()">
-                                <option value="0">0 Terisi</option>
-                                <option value="1">1 Terisi</option>
-                                <option value="2">2 Terisi</option>
-                            </select>
+                        <div class="input-group">
+                            <label class="input-label">Pengenceran (mL)</label>
+                            <input type="number" id="calc_sp_pengencer" class="input-ctrl" value="50" oninput="calculateSp()">
                         </div>
-                        <div class="input-group !mb-0">
-                            <label class="text-[10px] font-bold text-slate-500 mb-1">Isolasi 2 (1 Bed)</label>
-                            <select id="bed_isolasi_2" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()">
-                                <option value="0">0 (Kosong)</option>
-                                <option value="1">1 (Terisi)</option>
-                            </select>
-                        </div>
-                        <div class="input-group !mb-0">
-                            <label class="text-[10px] font-bold text-slate-500 mb-1">Isolasi 3 (2 Bed)</label>
-                            <select id="bed_isolasi_3" class="input-ctrl bg-white !py-1.5 text-xs font-bold" onchange="hitungBed()">
-                                <option value="0">0 Terisi</option>
-                                <option value="1">1 Terisi</option>
-                                <option value="2">2 Terisi</option>
+                        <div class="input-group">
+                            <label class="input-label">Satuan Dosis Minta</label>
+                            <select id="calc_sp_satuan_dosis" class="input-ctrl" onchange="calculateSp()">
+                                <option value="mcg/kg/menit">mcg / kgBB / menit</option>
+                                <option value="mg/jam">mg / jam</option>
+                                <option value="mcg/jam">mcg / jam</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-            </div>
-        </div>
-
-        <!-- Section 3: SDM Keperawatan -->
-        <div class="form-card border-t-4 border-t-amber-500">
-            <div class="section-header">
-                <h2 class="section-title">SDM KEPERAWATAN</h2>
-                <div class="section-icon bg-amber-500"></div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 mb-4">
-                <div class="input-group">
-                    <label class="input-label">Hadir Dinas (Orang)</label>
-                    <input type="number" id="hadir" class="input-ctrl" placeholder="Jumlah Hadir" min="0">
+                <div class="form-card bg-gradient-to-br from-indigo-50 to-slate-50 border-indigo-200">
+                    <h3 class="font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider">2. Dosis & Kecepatan Pump</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
+                            <label class="input-label text-indigo-600">Dosis Diinginkan</label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" step="0.01" id="calc_sp_dosis_input" class="input-ctrl text-lg font-black text-indigo-600" placeholder="0.00" oninput="calculateSp('dosis')">
+                                <span id="calc_sp_label_dosis" class="text-xs font-bold text-slate-500 shrink-0">mcg/kg/m</span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
+                            <label class="input-label text-emerald-600">Kecepatan Syringe Pump</label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" step="0.1" id="calc_sp_rate_input" class="input-ctrl text-lg font-black text-emerald-600" placeholder="0.0" oninput="calculateSp('rate')">
+                                <span class="text-xs font-bold text-slate-500 shrink-0">mL / jam</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-indigo-200/60 flex justify-between items-center text-xs text-slate-600">
+                        <span>Konsentrasi Larutan:</span>
+                        <span id="calc_sp_konsentrasi" class="font-bold text-slate-800">0 mcg/mL</span>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label class="input-label">Tidak Hadir (Orang)</label>
-                    <input type="number" id="tidak_hadir" class="input-ctrl" placeholder="Jumlah Tidak Hadir" min="0">
+            </div>
+
+            <!-- MODE 2: DRIP TETESAN -->
+            <div id="calcModeDrip" class="space-y-6 hidden">
+                <div class="form-card border-l-4 border-l-emerald-600">
+                    <h3 class="font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider">Perhitungan Tetesan Infus (TPM)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="input-group">
+                            <label class="input-label">Volume Cairan (mL)</label>
+                            <input type="number" id="calc_drip_volume" class="input-ctrl" placeholder="Contoh: 500" oninput="calculateDrip()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Lama Pemberian (Jam)</label>
+                            <input type="number" id="calc_drip_jam" class="input-ctrl" placeholder="Contoh: 8" oninput="calculateDrip()">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Faktor Tetes Macro / Micro</label>
+                        <select id="calc_drip_faktor" class="input-ctrl" onchange="calculateDrip()">
+                            <option value="20">20 Tetes/mL (Makro Standar Dewasa)</option>
+                            <option value="15">15 Tetes/mL (Makro Set Terentu)</option>
+                            <option value="60">60 Tetes/mL (Mikro / Anak / Pediatric)</option>
+                        </select>
+                    </div>
+                    <div class="mt-6 p-5 bg-emerald-50 rounded-2xl border border-emerald-200 text-center">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 block mb-1">Kecepatan Tetesan</span>
+                        <div class="text-4xl font-black text-emerald-600 my-1"><span id="calc_drip_res_tpm">0</span> <span class="text-base font-bold text-emerald-800">TPM</span></div>
+                        <span class="text-[11px] text-emerald-600 font-medium">(Tetes Per Menit)</span>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="border-t border-slate-100 pt-4">
-                <h3 class="input-label mb-3 text-amber-600">Rincian Perawat Tidak Hadir</h3>
-                <div id="absen_container" class="space-y-2 mb-3"></div>
-                <button type="button" onclick="addAbsenRow()" class="btn-add">+ Tambah Data Absen</button>
-            </div>
-        </div>
-
-        <!-- Section 4: Operasional & Pelaporan -->
-        <div class="form-card border-t-4 border-t-slate-800">
-            <div class="section-header">
-                <h2 class="section-title">KENDALA & PELAPORAN</h2>
-                <div class="section-icon bg-slate-800"></div>
-            </div>
-            <div class="input-group">
-                <label class="input-label">Kendala Pelayanan Ruangan</label>
-                <textarea id="kendala" class="input-ctrl" placeholder="Deskripsikan kendala pelayanan jika ada. Ketik 'Nihil' atau '-' jika aman.">Nihil</textarea>
-            </div>
-            <div class="input-group">
-                <label class="input-label">Dilaporkan Oleh (Katim)</label>
-                <select id="pelapor" class="input-ctrl bg-white" onchange="togglePelaporManual()">
-                    <option value="">-- Pilih Katim --</option>
-                    <!-- Options diisi via JS -->
-                </select>
-                <input type="text" id="pelapor_manual" class="input-ctrl mt-2 hidden-input" placeholder="Ketik Nama Katim Manual...">
-            </div>
-        </div>
-
-        <!-- Atribusi Desain -->
-        <div class="text-center mt-12 mb-6">
-            <hr class="w-24 mx-auto border-slate-300 mb-4">
+        <!-- Footer Credit -->
+        <div class="text-center mt-12 mb-4">
             <p class="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Designed with ❤️ by Eko Pastia Mukti</p>
         </div>
 
-        <!-- Footer Buttons -->
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] z-40">
-            <div class="max-w-2xl mx-auto flex gap-3">
-                <button onclick="togglePreview(true)" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-3 px-6 rounded-xl uppercase tracking-widest text-xs transition-colors shadow-lg active:scale-95">Preview</button>
-                <button onclick="copyData()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl uppercase tracking-widest text-xs transition-colors shadow-lg active:scale-95">Salin Laporan</button>
-                <button onclick="triggerResetConfirm()" class="bg-rose-500 hover:bg-rose-600 text-white font-black py-3 px-4 rounded-xl uppercase tracking-widest text-xs transition-colors shadow-lg active:scale-95">Reset</button>
-            </div>
-        </div>
+    </main>
 
-        <!-- Modal Preview -->
-        <div id="previewModal" class="modal-overlay">
-            <div class="modal-content">
-                <div class="bg-slate-900 p-4 flex justify-between items-center text-white shrink-0">
-                    <h3 class="font-black text-sm uppercase tracking-widest text-indigo-300">Draft Laporan Harian WhatsApp</h3>
-                    <button onclick="togglePreview(false)" class="text-slate-400 hover:text-white p-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                </div>
-                <div class="p-4 overflow-y-auto bg-slate-50 grow">
-                    <div id="modalOutput" class="whitespace-pre-wrap text-[13px] text-slate-800 font-mono leading-relaxed bg-white p-4 rounded-xl border border-slate-200 shadow-inner"></div>
-                </div>
-                <div class="p-4 bg-white border-t border-slate-200 shrink-0">
-                    <button onclick="copyData(); togglePreview(false);" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl uppercase tracking-widest text-xs transition-colors shadow-md">Salin Sekarang</button>
-                </div>
-            </div>
+    <!-- Floating Action Footer (Dinamis Sesuai Modul) -->
+    <div id="floating-actions" class="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] z-40">
+        <div class="max-w-3xl mx-auto flex gap-2 sm:gap-3">
+            <button onclick="triggerPreview()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-3 px-4 sm:px-6 rounded-xl uppercase tracking-widest text-xs transition-colors shadow-lg active:scale-95">Preview</button>
+            <button onclick="triggerCopy()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl uppercase tracking-widest text-xs transition-colors shadow-lg active:scale-95">Salin Teks</button>
+            <button onclick="triggerReset()" class="bg-rose-500 hover:bg-rose-600 text-white font-black py-3 px-4 rounded-xl uppercase tracking-widest text-xs transition-colors shadow-lg active:scale-95">Reset</button>
         </div>
-
-        <!-- Custom Reset Confirmation Modal -->
-        <div id="resetConfirmModal" class="modal-overlay">
-            <div class="modal-content !max-w-md p-6 text-center">
-                <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 font-black text-2xl">
-                    ⚠️
-                </div>
-                <h3 class="text-lg font-black text-slate-900 mb-2 uppercase tracking-wide">Hapus Seluruh Form?</h3>
-                <p class="text-sm text-slate-500 mb-6 font-semibold">Tindakan ini tidak bisa dibatalkan. Semua data yang telah Anda isi akan hilang sepenuhnya.</p>
-                <div class="flex gap-3 justify-center">
-                    <button onclick="closeResetConfirm()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 px-5 rounded-xl text-xs uppercase tracking-widest transition-colors flex-1">Batal</button>
-                    <button onclick="resetForm()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-5 rounded-xl text-xs uppercase tracking-widest transition-colors flex-1">Ya, Hapus</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Toast Notification -->
-        <div id="toast" class="toast">BERHASIL DISALIN!</div>
     </div>
 
+    <!-- Modal Preview Shared -->
+    <div id="previewModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="bg-slate-900 p-4 flex justify-between items-center text-white shrink-0">
+                <h3 id="modalTitle" class="font-black text-sm uppercase tracking-widest">Draft Output</h3>
+                <button onclick="toggleModal(false)" class="text-slate-400 hover:text-white p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto bg-slate-50 grow">
+                <div id="modalOutput" class="whitespace-pre-wrap text-[13px] text-slate-800 font-mono leading-relaxed bg-white p-4 rounded-xl border border-slate-200 shadow-inner"></div>
+            </div>
+            <div class="p-4 bg-white border-t border-slate-200 shrink-0">
+                <button onclick="triggerCopy(); toggleModal(false);" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl uppercase tracking-widest text-xs transition-colors shadow-md">Salin Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">BERHASIL DISALIN!</div>
+
+    <!-- JavaScript Logika Portal -->
     <script>
-        // Data Katim (Ruang Depati Payung / Bougenville)
-        const katimList = [
-            "Ns. Febi Kristian N, S.Kep",
-            "Vilda Dlenita Murni, Am.Kep"
-        ];
+        let currentTab = 'laporan';
 
-        // Database Staf Perawat Ruang Depati Payung (Bougenville)
+        // List Master Perawat & Katim
+        const katimList = ["Ns. Febi Kristian N, S.Kep", "Vilda Dlenita Murni, Am.Kep"];
         const nurseList = [
-            "Ns. Rita Andriyani, S.Kep",
-            "Siska Fauziah, SKM",
-            "Bella Nurhadia, AMDKes",
-            "Ns. Febi Kristian N, S.Kep",
-            "Bdn. Widiya Mayasari, SST",
-            "Winarta, Am.Keb",
-            "Triani Devina, Am.Kep",
-            "Dinni Wulandari, Am.Keb",
-            "Yulina Anggelina, Am.Keb",
-            "Vilda Dlenita Murni, Am.Kep",
-            "Ns. Lisa Zelfianah, S.Kep",
-            "Cindy Fatikasari, Am.Keb",
-            "Ns. Dasmaniar, S.Kep",
-            "Nepa Rapita, STr.Keb",
-            "Ns. Mila Gustia, S.Kep.M.Kes"
+            "Ns. Rita Andriyani, S.Kep", "Siska Fauziah, SKM", "Bella Nurhadia, AMDKes",
+            "Ns. Febi Kristian N, S.Kep", "Bdn. Widiya Mayasari, SST", "Winarta, Am.Keb",
+            "Triani Devina, Am.Kep", "Dinni Wulandari, Am.Keb", "Yulina Anggelina, Am.Keb",
+            "Vilda Dlenita Murni, Am.Kep", "Ns. Lisa Zelfianah, S.Kep", "Cindy Fatikasari, Am.Keb",
+            "Ns. Dasmaniar, S.Kep", "Nepa Rapita, STr.Keb", "Ns. Mila Gustia, S.Kep.M.Kes"
         ];
 
-        // Struktur Bed Ruang Depati Payung (Total 16 Bed)
         const bedRooms = [
             { id: 'bed_bgv_1a', name: 'Bougenville 1A', max: 1 },
             { id: 'bed_bgv_1b', name: 'Bougenville 1B', max: 1 },
@@ -340,82 +490,58 @@
         ];
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Set Default Tanggal Hari Ini
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            document.getElementById('tanggal').value = `${year}-${month}-${day}`;
+            // Set Tanggal Default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('lap_tanggal').value = today;
 
-            // Populate Dropdown Katim
-            const pelaporSelect = document.getElementById('pelapor');
-            katimList.forEach(katim => {
-                pelaporSelect.add(new Option(katim, katim));
-            });
+            // Populate Dropdown Katim Laporan
+            const pelaporSelect = document.getElementById('lap_pelapor');
+            katimList.forEach(k => pelaporSelect.add(new Option(k, k)));
             pelaporSelect.add(new Option("Lainnya (Ketik Manual)", "manual"));
-            
-            // Generate HTML string pilihan nama perawat untuk dropdown absen
+
+            // Option Perawat
             let optionsHtml = '';
-            nurseList.forEach(nurse => {
-                optionsHtml += `<option value="${nurse}">${nurse}</option>`;
-            });
+            nurseList.forEach(n => optionsHtml += `<option value="${n}">${n}</option>`);
             optionsHtml += `<option value="manual">Lainnya (Ketik Manual)</option>`;
             window.nurseOptionsHtml = optionsHtml;
 
-            // Inisialisasi perhitungan bed awal
+            // Init Baris Sisrute Awal
+            for(let i=0; i<2; i++) { addTherapyRow('injeksi'); addTherapyRow('oral'); addTindakanRow(); }
+
             hitungBed();
         });
 
-        function togglePelaporManual() {
-            const select = document.getElementById('pelapor');
-            const manual = document.getElementById('pelapor_manual');
-            if (select.value === 'manual') {
-                manual.style.display = 'block';
-                manual.focus();
+        // Tab Switcher Manager
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`modul-${tab}`).classList.remove('hidden');
+            document.getElementById(`btn-tab-${tab}`).classList.add('active');
+
+            const floatingActions = document.getElementById('floating-actions');
+            if (tab === 'kalkulator') {
+                floatingActions.classList.add('hidden');
             } else {
-                manual.style.display = 'none';
-                manual.value = '';
+                floatingActions.classList.remove('hidden');
             }
         }
 
-        function toggleAbsenManual(selectEl) {
-            const row = selectEl.closest('.absen-row');
-            const manualInput = row.querySelector('.absen-manual');
-            if (selectEl.value === 'manual') {
-                manualInput.style.display = 'block';
-                manualInput.focus();
-            } else {
-                manualInput.style.display = 'none';
-                manualInput.value = '';
-            }
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('active');
+            setTimeout(() => toast.classList.remove('active'), 2500);
         }
 
-        function addAbsenRow() {
-            const rowId = 'absen_row_' + Date.now();
-            const rowHtml = `
-                <div id="${rowId}" class="absen-row bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
-                    <div class="flex gap-2 items-center">
-                        <select class="absen-name input-ctrl flex-1 !py-2 bg-white text-xs" onchange="toggleAbsenManual(this)">
-                            <option value="">-- Pilih Perawat --</option>
-                            ${window.nurseOptionsHtml}
-                        </select>
-                        <select class="absen-reason input-ctrl w-28 sm:w-36 !py-2 text-xs bg-white">
-                            <option value="Sakit">Sakit</option>
-                            <option value="Cuti">Cuti</option>
-                            <option value="Izin">Izin</option>
-                            <option value="Lepas">Lepas</option>
-                            <option value="Tanpa Keterangan">Tanpa Keterangan</option>
-                        </select>
-                        <button type="button" onclick="document.getElementById('${rowId}').remove()" class="text-rose-500 hover:text-rose-700 font-black p-2 text-xs">
-                            ✕
-                        </button>
-                    </div>
-                    <input type="text" class="absen-manual input-ctrl text-xs hidden-input" placeholder="Ketik nama perawat manual...">
-                </div>`;
-            document.getElementById('absen_container').insertAdjacentHTML('beforeend', rowHtml);
+        function toggleModal(show) {
+            const modal = document.getElementById('previewModal');
+            if (show) modal.classList.add('active');
+            else modal.classList.remove('active');
         }
 
-        // Kalkulasi Kapasitas Bed Depati Payung (Bougenville)
+        /* ================= LOGIKA MODUL LAPORAN ================= */
         function hitungBed() {
             let totalTerisi = 0;
             let readyList = [];
@@ -425,141 +551,207 @@
                 const terisi = parseInt(el ? el.value : 0) || 0;
                 totalTerisi += terisi;
                 const sisaReady = room.max - terisi;
-
-                if (sisaReady > 0) {
-                    readyList.push(`${room.name}: ${sisaReady} Bed`);
-                }
+                if (sisaReady > 0) readyList.push(`${room.name}: ${sisaReady} Bed`);
             });
 
             const totalReady = 16 - totalTerisi;
-            document.getElementById('bed_terisi').value = `${totalTerisi} Bed`;
-            document.getElementById('bed_ready').value = `${totalReady} Bed Ready`;
-            
-            window.readyRoomsDetails = readyList.length > 0 
-                ? readyList.map(item => `  • ${item}`).join('\n') 
-                : "  • Penuh (0 Bed Ready)";
+            document.getElementById('lap_bed_terisi').value = `${totalTerisi} Bed`;
+            document.getElementById('lap_bed_ready').value = `${totalReady} Bed Ready`;
+            window.readyRoomsDetails = readyList.length > 0 ? readyList.map(item => `  • ${item}`).join('\n') : "  • Penuh (0 Bed Ready)";
         }
 
-        function formatTanggalIndo(dateStr) {
-            if (!dateStr) return '-';
-            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            
-            const parts = dateStr.split('-');
-            const year = parseInt(parts[0]);
-            const month = parseInt(parts[1]) - 1;
-            const day = parseInt(parts[2]);
-            
-            const d = new Date(year, month, day);
-            return `${days[d.getDay()]}, ${day} ${months[month]} ${year}`;
+        function togglePelaporManual() {
+            const select = document.getElementById('lap_pelapor');
+            const manual = document.getElementById('lap_pelapor_manual');
+            manual.style.display = select.value === 'manual' ? 'block' : 'none';
         }
 
-        const val = (id) => {
-            const el = document.getElementById(id);
-            return el ? el.value.trim() : '';
-        };
+        function addAbsenRow() {
+            const rowId = 'absen_row_' + Date.now();
+            const rowHtml = `
+                <div id="${rowId}" class="absen-row bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <div class="flex gap-2 items-center">
+                        <select class="absen-name input-ctrl flex-1 !py-2 bg-white text-xs" onchange="this.closest('.absen-row').querySelector('.absen-manual').style.display = this.value === 'manual' ? 'block' : 'none'">
+                            <option value="">-- Pilih Perawat --</option>
+                            ${window.nurseOptionsHtml}
+                        </select>
+                        <select class="absen-reason input-ctrl w-28 sm:w-36 !py-2 text-xs bg-white">
+                            <option value="Sakit">Sakit</option><option value="Cuti">Cuti</option><option value="Izin">Izin</option><option value="Lepas">Lepas</option><option value="Tanpa Keterangan">Tanpa Keterangan</option>
+                        </select>
+                        <button type="button" onclick="document.getElementById('${rowId}').remove()" class="text-rose-500 font-black p-2 text-xs">✕</button>
+                    </div>
+                    <input type="text" class="absen-manual input-ctrl text-xs hidden-input" placeholder="Nama perawat manual...">
+                </div>`;
+            document.getElementById('absen_container').insertAdjacentHTML('beforeend', rowHtml);
+        }
 
         function generateLaporanText() {
-            const tglFormatted = formatTanggalIndo(val('tanggal'));
-            
-            // Evaluasi Rincian Absen
+            const val = id => document.getElementById(id) ? document.getElementById(id).value.trim() : '';
             let absenDetails = [];
-            const absenRows = document.querySelectorAll('.absen-row');
-            
-            absenRows.forEach(row => {
-                const nameSelect = row.querySelector('.absen-name');
-                const reasonSelect = row.querySelector('.absen-reason');
-                const manualInput = row.querySelector('.absen-manual');
-                
-                let nama = '';
-                if (nameSelect.value === 'manual') {
-                    nama = manualInput.value.trim();
-                } else {
-                    nama = nameSelect.value;
-                }
-
-                if (nama !== "") {
-                    // Bersihkan gelar untuk tampilan laporan
-                    const cleanName = nama
-                        .split(',')[0]
-                        .replace('Ns. ', '')
-                        .replace('Bdn. ', '')
-                        .replace('Bdn.', '')
-                        .trim();
-                    absenDetails.push(`${cleanName} (${reasonSelect.value})`);
+            document.querySelectorAll('.absen-row').forEach(row => {
+                const nameSel = row.querySelector('.absen-name');
+                const reasonSel = row.querySelector('.absen-reason');
+                const manualIn = row.querySelector('.absen-manual');
+                let nama = nameSel.value === 'manual' ? manualIn.value.trim() : nameSel.value;
+                if (nama) {
+                    const cleanName = nama.split(',')[0].replace('Ns. ', '').replace('Bdn. ', '').trim();
+                    absenDetails.push(`${cleanName} (${reasonSel.value})`);
                 }
             });
-            
-            let absensiStr = `• Hadir Dinas : ${val('hadir') || '0'} Orang\n• Tidak Hadir : ${val('tidak_hadir') || '0'} Orang`;
-            if (absenDetails.length > 0) {
-                absensiStr += `\n_(Keterangan: ${absenDetails.join(', ')})_`;
-            }
+
+            let absensiStr = `• Hadir Dinas : ${val('lap_hadir') || '0'} Orang\n• Tidak Hadir : ${val('lap_tidak_hadir') || '0'} Orang`;
+            if (absenDetails.length > 0) absensiStr += `\n_(Keterangan: ${absenDetails.join(', ')})_`;
 
             let totalTerisi = 0;
-            bedRooms.forEach(room => {
-                const el = document.getElementById(room.id);
-                totalTerisi += parseInt(el ? el.value : 0) || 0;
-            });
-            const totalReady = 16 - totalTerisi;
+            bedRooms.forEach(room => totalTerisi += parseInt(document.getElementById(room.id).value || 0));
 
-            let finalPelapor = val('pelapor') === 'manual' ? val('pelapor_manual') : val('pelapor');
+            const pelapor = val('lap_pelapor') === 'manual' ? val('lap_pelapor_manual') : val('lap_pelapor');
 
-            return `🏥 *LAPORAN HARIAN RAWAT INAP*
-*RSUD KOL. ABUNDJANI BANGKO*
-
-🗓️ *Hari/Tanggal:* ${tglFormatted}
-⏰ *Shift:* ${val('shift') || '-'}
-📍 *Ruangan:* ${val('ruangan') || 'Ruang Depati Payung (Bougenville)'}
-
-📊 *STATUS KAPASITAS BED (TOTAL 16 BED)*
-• Bed Terisi : ${totalTerisi} Bed
-• Bed Ready  : ${totalReady} Bed
-
-*Rincian Bed Ready Per Kamar:*
-${window.readyRoomsDetails || '  • Penuh'}
-
-👥 *SDM KEPERAWATAN*
-${absensiStr}
-
-⚠️ *KENDALA PELAYANAN RUANGAN*
-${val('kendala') || 'Nihil'}
-
-✍️ *DILAPORKAN OLEH (KATIM):*
-*${finalPelapor || '-'}*`;
+            return `🏥 *LAPORAN HARIAN RAWAT INAP*\n*RSUD KOL. ABUNDJANI BANGKO*\n\n🗓️ *Hari/Tanggal:* ${val('lap_tanggal')}\n⏰ *Shift:* ${val('lap_shift')}\n📍 *Ruangan:* ${val('lap_ruangan')}\n\n📊 *STATUS KAPASITAS BED (TOTAL 16 BED)*\n• Bed Terisi : ${totalTerisi} Bed\n• Bed Ready  : ${16 - totalTerisi} Bed\n\n*Rincian Bed Ready Per Kamar:*\n${window.readyRoomsDetails}\n\n👥 *SDM KEPERAWATAN*\n${absensiStr}\n\n⚠️ *KENDALA PELAYANAN RUANGAN*\n${val('lap_kendala') || 'Nihil'}\n\n✍️ *DILAPORKAN OLEH (KATIM):*\n*${pelapor || '-'}*`;
         }
 
-        function togglePreview(show) {
-            const modal = document.getElementById('previewModal');
-            if (show) {
-                document.getElementById('modalOutput').innerText = generateLaporanText();
-                modal.classList.add('active');
+        /* ================= LOGIKA MODUL SISRUTE ================= */
+        function autoFormatMR(val) {
+            const digits = val.replace(/\D/g, ''); 
+            return digits.length === 6 ? digits.replace(/(\d{2})(\d{2})(\d{2})/, "$1.$2.$3") : val;
+        }
+
+        function formatGcsComponent(val) {
+            if (!val || val === '-') return '-';
+            if (/^\d+$/.test(val)) {
+                const map = {'0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹'};
+                return String(val).split('').map(c => map[c] || c).join('');
+            }
+            return val;
+        }
+
+        function toggleDpjpManual() {
+            const select = document.getElementById('sis_dpjp');
+            document.getElementById('sis_dpjp_manual').style.display = select.value === 'manual' ? 'block' : 'none';
+        }
+
+        function addTherapyRow(type) {
+            const html = `
+                <div class="flex gap-2 items-center therapy-row">
+                    <input type="text" class="${type}-name input-ctrl flex-1 !py-2" placeholder="Nama obat...">
+                    <select class="${type}-freq input-ctrl !w-36 appearance-none !py-2 text-xs">
+                        <option value="">Jadwal</option><option value="/4 jam">/4 jam</option><option value="/6 jam">/6 jam</option><option value="/8 jam">/8 jam</option><option value="/12 jam">/12 jam</option><option value="/24 jam">/24 jam</option>
+                    </select>
+                </div>`;
+            document.getElementById(`${type}_container`).insertAdjacentHTML('beforeend', html);
+        }
+
+        function addTindakanRow() {
+            document.getElementById('tindakan_container').insertAdjacentHTML('beforeend', `<input type="text" class="tindakan-name input-ctrl !py-2" placeholder="Nama tindakan...">`);
+        }
+
+        function generateSisruteText() {
+            const val = id => document.getElementById(id) && document.getElementById(id).value !== '-' ? document.getElementById(id).value.trim() : '';
+
+            const gcsFormatted = `E${formatGcsComponent(val('sis_gcs_e'))} M${formatGcsComponent(val('sis_gcs_m'))} V${formatGcsComponent(val('sis_gcs_v'))}`;
+
+            const getList = type => {
+                const names = Array.from(document.querySelectorAll(`.${type}-name`));
+                const freqs = Array.from(document.querySelectorAll(`.${type}-freq`));
+                const list = names.map((input, i) => input.value.trim() ? `(${input.value.trim()}${freqs[i] && freqs[i].value ? ' ' + freqs[i].value : ''})` : null).filter(Boolean);
+                return list.length ? list.join('\n') : " -";
+            };
+
+            const getTindakan = () => {
+                const list = Array.from(document.querySelectorAll('.tindakan-name')).map(i => i.value.trim() ? `- ${i.value.trim()}` : null).filter(Boolean);
+                return list.length ? list.join('\n') : "-";
+            };
+
+            const o2Type = val('sis_bantuan_oksigen');
+            const o2Amt = val('sis_jumlah_oksigen');
+            let o2Str = o2Type || '-';
+            if (o2Type && o2Type !== 'Room Air' && o2Amt) o2Str += ` ${o2Amt} LPM`;
+
+            const dpjp = val('sis_dpjp') === 'manual' ? val('sis_dpjp_manual') : val('sis_dpjp');
+
+            return `Assalamualaikum\n\nKami dari RSUD Kol. Abundjani Bangko ingin merujuk pasien dengan data berikut ini:\n\nNama Pasien : ${val('sis_nama') || '-'}\nNo. RM : ${val('sis_mr') || '-'}\nRS Asal Rujukan: *RSUD KOL. ABUNDJANI BANGKO*\n\nUsia: ${val('sis_usia') || '-'}\nJenis Kelamin : ${val('sis_jk') || '-'}\nTempat/Tanggal Lahir : ${val('sis_ttl') || '-'}\nAlamat: ${val('sis_alamat') || '-'}\nNo. Kontak: ${val('sis_kontak') || '-'}\nJaminan : ${val('sis_jaminan') || '-'}\nDiagnosa Medis : *${val('sis_diagnosa') || '-'}*\n\nAlasan Rujukan: ${val('sis_alasan') || '-'}\nDi tujukan ke Bagian : ${val('sis_tujuan_bagian') || '-'}\nRencana Tindakan\\layanan khusus: ${val('sis_rencana') || '-'}\n\nAnamnesis: ${val('sis_anamnesis') || '-'}\n\nPemeriksaan Fisik\nKesadaran: ${val('sis_kesadaran') || '-'}\nGCS : ${gcsFormatted}\nTekanan darah : ${val('sis_td') || '-'} mmHg\nNadi : ${val('sis_nadi') || '-'} x/menit\nSuhu : ${val('sis_suhu') || '-'} °C\nRR: ${val('sis_rr') || '-'} x/menit\nSpO²: ${val('sis_spo2') ? val('sis_spo2') + '%' : '-'}\nBantuan Oksigen : ${o2Str}\n\nHasil Laboratorium : Terlampir\nRadiologi: Terlampir\nEKG: Terlampir\n\nTerapi Yang sudah diberikan:\nInjeksi:\n${getList('injeksi')}\nOral:\n${getList('oral')}\n\nTindakan Yang sudah Dilakukan:\n${getTindakan()}\n\nNama DPJP yang merujuk : ${dpjp || '-'}\nSudah berapa hari rawatan : ${val('sis_hari_rawatan') ? val('sis_hari_rawatan') + ' Hari' : '-'}\n\nTerima Kasih`;
+        }
+
+        /* ================= LOGIKA MODUL KALKULATOR ================= */
+        function switchCalcTab(mode) {
+            document.getElementById('calcModeSp').classList.toggle('hidden', mode !== 'sp');
+            document.getElementById('calcModeDrip').classList.toggle('hidden', mode !== 'drip');
+            document.getElementById('calcTabSp').className = mode === 'sp' ? "flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-sm bg-white text-indigo-600" : "flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all text-slate-600";
+            document.getElementById('calcTabDrip').className = mode === 'drip' ? "flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-sm bg-white text-emerald-600" : "flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all text-slate-600";
+        }
+
+        function applySpPreset() {
+            const p = document.getElementById('calc_sp_preset').value;
+            if (p === 'vascon') { setSp(4, 'mg', 50, 'mcg/kg/menit'); }
+            else if (p === 'dobutamin') { setSp(250, 'mg', 50, 'mcg/kg/menit'); }
+            else if (p === 'dopamin') { setSp(200, 'mg', 50, 'mcg/kg/menit'); }
+            else if (p === 'perdipine') { setSp(10, 'mg', 50, 'mg/jam'); }
+            else if (p === 'fentanyl') { setSp(100, 'mcg', 50, 'mcg/jam'); }
+            calculateSp('dosis');
+        }
+
+        function setSp(s, ss, p, sd) {
+            document.getElementById('calc_sp_sediaan').value = s;
+            document.getElementById('calc_sp_satuan_sediaan').value = ss;
+            document.getElementById('calc_sp_pengencer').value = p;
+            document.getElementById('calc_sp_satuan_dosis').value = sd;
+        }
+
+        function calculateSp(source = 'dosis') {
+            const bb = parseFloat(document.getElementById('calc_sp_bb').value) || 0;
+            const sediaan = parseFloat(document.getElementById('calc_sp_sediaan').value) || 0;
+            const satuanSediaan = document.getElementById('calc_sp_satuan_sediaan').value;
+            const pengencer = parseFloat(document.getElementById('calc_sp_pengencer').value) || 1;
+            const satuanDosis = document.getElementById('calc_sp_satuan_dosis').value;
+            document.getElementById('calc_sp_label_dosis').innerText = satuanDosis;
+
+            let totalMcg = satuanSediaan === 'mg' ? sediaan * 1000 : sediaan;
+            const konsentrasi = totalMcg / pengencer;
+            document.getElementById('calc_sp_konsentrasi').innerText = `${konsentrasi.toLocaleString('id-ID')} mcg/mL (${(konsentrasi/1000).toFixed(2)} mg/mL)`;
+
+            if (konsentrasi <= 0) return;
+            const dosisIn = document.getElementById('calc_sp_dosis_input');
+            const rateIn = document.getElementById('calc_sp_rate_input');
+
+            if (source === 'dosis') {
+                const dosis = parseFloat(dosisIn.value) || 0;
+                let rate = 0;
+                if (satuanDosis === 'mcg/kg/menit') { if (bb > 0) rate = (dosis * bb * 60) / konsentrasi; }
+                else if (satuanDosis === 'mg/jam') { rate = dosis / (konsentrasi / 1000); }
+                else if (satuanDosis === 'mcg/jam') { rate = dosis / konsentrasi; }
+                rateIn.value = rate > 0 ? rate.toFixed(1) : '';
             } else {
-                modal.classList.remove('active');
+                const rate = parseFloat(rateIn.value) || 0;
+                let dosis = 0;
+                if (satuanDosis === 'mcg/kg/menit') { if (bb > 0) dosis = (rate * konsentrasi) / (bb * 60); }
+                else if (satuanDosis === 'mg/jam') { dosis = rate * (konsentrasi / 1000); }
+                else if (satuanDosis === 'mcg/jam') { dosis = rate * konsentrasi; }
+                dosisIn.value = dosis > 0 ? dosis.toFixed(2) : '';
             }
         }
 
-        function triggerResetConfirm() {
-            document.getElementById('resetConfirmModal').classList.add('active');
+        function calculateDrip() {
+            const vol = parseFloat(document.getElementById('calc_drip_volume').value) || 0;
+            const jam = parseFloat(document.getElementById('calc_drip_jam').value) || 0;
+            const faktor = parseFloat(document.getElementById('calc_drip_faktor').value) || 20;
+            document.getElementById('calc_drip_res_tpm').innerText = (vol > 0 && jam > 0) ? Math.round((vol * faktor) / (jam * 60)) : '0';
         }
 
-        function closeResetConfirm() {
-            document.getElementById('resetConfirmModal').classList.remove('active');
+        /* ================= ROUTER FLOATING ACTIONS ================= */
+        function triggerPreview() {
+            let txt = "", title = "";
+            if (currentTab === 'laporan') { txt = generateLaporanText(); title = "Draft Laporan Harian"; }
+            else if (currentTab === 'sisrute') { txt = generateSisruteText(); title = "Draft Format SISRUTE"; }
+            
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalOutput').innerText = txt;
+            toggleModal(true);
         }
 
-        function resetForm() {
-            location.reload();
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg || "BERHASIL DISALIN!";
-            toast.classList.add('active');
-            setTimeout(() => { toast.classList.remove('active'); }, 2200);
-        }
-
-        function fallbackCopy(text) {
+        function triggerCopy() {
+            let txt = currentTab === 'laporan' ? generateLaporanText() : generateSisruteText();
             const textarea = document.createElement("textarea");
-            textarea.value = text;
+            textarea.value = txt;
             textarea.style.position = "fixed";
             textarea.style.opacity = "0";
             document.body.appendChild(textarea);
@@ -569,22 +761,13 @@ ${val('kendala') || 'Nihil'}
                 document.execCommand('copy');
                 showToast("BERHASIL DISALIN!");
             } catch (err) {
-                showToast("GAGAL MENYALIN TEKS");
+                showToast("GAGAL MENYALIN!");
             }
             document.body.removeChild(textarea);
         }
 
-        function copyData() {
-            const text = generateLaporanText();
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast("BERHASIL DISALIN!");
-                }).catch(() => {
-                    fallbackCopy(text);
-                });
-            } else {
-                fallbackCopy(text);
-            }
+        function triggerReset() {
+            if (confirm("Reset seluruh data di modul ini?")) location.reload();
         }
     </script>
 </body>
